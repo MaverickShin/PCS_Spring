@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="ptms.mvc.tpj.Customer_Main_DAO.MainDAO">
+
+	<!-- 로그인 : 아이디확인 / 회원가입 아이디 중복확인 -->
+	<select id="idCheck" resultType = "int">
+		SELECT count(*) cnt FROM customer_tb WHERE cust_id = #{strid}
+	</select>
+	
+	<!-- 로그인 - 회원정보 조회 -->
+	<select id="custInfo" parameterType="String" resultType = "ptms.mvc.tpj.CustVO.CustomerVO">
+		SELECT * FROM customer_tb WHERE cust_id = #{id}
+	</select>
+	
+	<!-- 결제 - 회원정보 조회 (주소포함) -->
+	<select id = "custDetailInfo" resultType = "ptms.mvc.tpj.CustVO.CustomerVO">
+		SELECT c.*, z.ADDRESS1 as ADDRESS1 FROM CUSTOMER_TB c, ZIPCODES_TB z
+		WHERE c.ZIPCODE = z.ZIP_CD
+		AND CUST_ID = #{id}
+	</select>
+	
+	<!-- 회원가입 처리 -->
+	<insert id = "insertCust" parameterType="ptms.mvc.tpj.CustVO.CustomerVO">
+		INSERT INTO customer_tb (CUST_ID, CUST_PWD, CUST_NM, CUST_EM, CUST_PH, ZIPCODE, ENABLE_NO, AUTHOR, CUST_DT, SUBADDRESS) 
+		VALUES (#{CUST_ID}, #{CUST_PWD}, #{CUST_NM}, #{CUST_EM}, #{CUST_PH}, #{ZIPCODE}, 1, default, sysdate, #{SUBADDRESS})
+	</insert>
+	
+	<!-- 로그인 - 비밀번호 확인 / 비밀번호 찾기 -->
+	<select id="pwdSearch" resultType = "String">
+		SELECT CUST_PWD FROM customer_tb WHERE cust_id = #{id}
+	</select>
+	
+	<!-- 사용자 권한 조회 -->
+	<select id="gradeCheck" resultType = "String">
+		SELECT AUTHOR FROM customer_tb WHERE cust_id = #{id}
+	</select>
+	
+	<!-- 우편번호 등록 -->
+	<insert id="insertzipcode" parameterType="java.util.Map">
+		INSERT INTO zipcodes_tb VALUES(#{zipcode}, #{address1}, #{address2})
+	</insert>
+	
+	<!-- 우편번호 조회 -->	
+	<select id="zipcodeChk" resultType="int">
+		SELECT COUNT(*) FROM zipcodes_tb WHERE ZIP_CD = #{ZIPCODE}
+	</select>
+	
+	<!-- 회원정보 조회(회원,우편) -->	
+	<select id="selectCustomer" resultType="ptms.mvc.tpj.CustVO.CustomerVO">
+	select c.*, z.ADDRESS1, z.ADDRESS2 from customer_tb c, zipcodes_tb z where c.zipcode = z.zip_cd and cust_id = #{id}
+	</select>
+	
+	<!-- 1.회원정보 수정처리 -->
+	<update id="updateCustomer" parameterType="ptms.mvc.tpj.CustVO.CustomerVO">
+		update CUSTOMER_TB set CUST_PWD=#{CUST_PWD}, CUST_EM=#{CUST_EM}, CUST_PH=#{CUST_PH}, SUBADDRESS=#{SUBADDRESS}, ZIPCODE = #{ZIPCODE}
+		where CUST_ID=#{CUST_ID}
+	</update>
+	<!-- 2. 우편번호가 같을시 update -->
+	<update id="updateCustomer2" parameterType="ptms.mvc.tpj.CustVO.CustomerVO">
+		update ZIPCODES_TB set ADDRESS1=#{ADDRESS1}, ADDRESS2=#{ADDRESS2} where ZIP_CD=#{ZIPCODE}
+	</update>
+	<!-- 3. 우편번호가 다를시 우편번호등록 사용 -->
+	
+	<!-- 회원 탈퇴 (CUSTOMER_TB) -->
+	<delete id="deleteCustomer" parameterType="String">
+		delete from CUSTOMER_TB where cust_id = #{CUST_ID}
+	</delete>
+	
+	<!-- 펫 목록 조회 -->
+	<select id="getPetList" parameterType="String" resultType="ptms.mvc.tpj.CustVO.PetVO">
+		select *
+		from (select PET_CD, CUST_ID, PK_CD, PET_AGE, PET_NM, PET_CON, PET_IMG, PET_DT 
+				from (select *
+						from PET_TB
+					   order by abs(PET_CD) desc)
+			)
+		where CUST_ID = #{CUST_ID}
+	</select>
+	
+	<!-- 펫 가입 처리 -->
+	<insert id = "insertPet" parameterType="ptms.mvc.tpj.CustVO.PetVO">
+		INSERT INTO PET_TB (PET_CD, CUST_ID, PK_CD, PET_AGE, PET_NM, PET_CON, PET_IMG, PET_DT) 
+		VALUES (PET_TB_seq.nextval, #{CUST_ID}, #{PK_CD}, #{PET_AGE}, #{PET_NM}, #{PET_CON}, #{PET_IMG}, sysdate)
+	</insert>
+	
+	<!-- 펫 상세 정보 -->
+	<select id="PetDetail" parameterType="int" resultType="ptms.mvc.tpj.CustVO.PetVO">
+		select * from PET_TB where PET_CD = #{PET_CD}
+	</select>
+	
+	<!-- 펫 수정 처리 -->
+	<update id="updatePet" parameterType="ptms.mvc.tpj.CustVO.PetVO">
+		update PET_TB 
+		set PK_CD = #{PK_CD}, PET_AGE = #{PET_AGE} ,PET_NM = #{PET_NM} ,PET_CON = #{PET_CON} ,PET_IMG = #{PET_IMG} 
+		where PET_CD = #{PET_CD}
+	</update>
+	
+	<!-- 펫 삭제 -->
+	<delete id="deletePet" parameterType="int">
+		delete from PET_TB where PET_CD = #{PET_CD}
+	</delete>
+	
+	<!-- 등록된 펫 갯수 -->
+	<select id="getPetCnt" resultType="int">
+		select count(*) as cnt from PET_TB where CUST_ID = #{CUST_ID}
+	</select>
+	
+	<!-- 캘린더 불러오기 -->
+	<select id="getEvents" parameterType="String" resultType="Map">
+		select ck.CK_KIND "kind",
+		       cl.CL_CD "_id",
+		       to_char(cl.START_TM, 'YYYY-MM-DDTHH24:MI') "start",
+		       to_char(cl.END_TM, 'YYYY-MM-DDTHH24:MI') "end",
+		       cl.CL_TITLE "title",
+		       cl.CL_MEMO "memo"
+		from   CALENDAR_KIND_TB ck, CALENDAR_TB cl  
+		where  ck.CK_CD = cl.CK_CD
+	</select>
+	
+	<!-- 결제 정보 처리 -->
+	<insert id="insertPayhistory" parameterType="java.util.Map">
+		INSERT INTO BUYLIST_TB
+		VALUES (BY_CD_SEQ.nextval, #{CUST_ID}, #{PAYKIND_CD}, #{BY_SUM}, #{BY_FEES}, sysdate)
+	</insert>
+	
+	<!-- 구독 결제 업데이트 -->
+	<update id="updateSubscribe" parameterType="java.util.Map">
+		UPDATE CUSTOMER_TB
+		SET
+			START_DT = TO_DATE(#{today}, 'YYYY/MM/DD'),
+			END_DT = TO_DATE(#{release}, 'YYYY/MM/DD'),
+			AUTHOR = #{AUTHOR}
+		WHERE CUST_ID = #{cust_id}
+	</update>
+	
+	<!-- 시터등록 안되어 있을시 시터프로필 수정 접근 금지 -->
+	<select id="sitterSigninChk" parameterType="String" resultType="int">
+		SELECT COUNT(*)
+		FROM SITTERS_TB s
+		WHERE CUST_ID = #{CUST_ID}
+	</select>	
+	
+	<!-- 훈련사등록이 안되어있으면 훈련사 프로필 접근 불가 -->
+	<select id="trainerChk" parameterType="String" resultType="int">
+		select count(*)
+		from TRAINER_TB
+		where CUST_ID = #{CUST_ID}
+	</select>
+	
+	<!-- qna 목록 갯수 -->
+	<select id="qnaCount" resultType="int">
+		SELECT COUNT(*) as cnt FROM QNA_TB WHERE CUST_ID = #{cust_id} AND QK_CD = ${qk_cd}
+	</select>
+	
+	<!-- qna 목록 조회 -->
+	<select id="qnaSearch" parameterType="java.util.Map" resultType="ptms.mvc.tpj.CustVO.QnAVO">
+		<![CDATA[
+			SELECT * 
+		      FROM   
+		    	(SELECT QNA_CD, CUST_ID, QK_CD, MG_ID, QNA_TITLE, QNA_CONTENT, QNA_ANSWER, QNA_DT, rowNum rNum 
+		    	   FROM ( SELECT *  
+		    			  FROM QNA_TB 
+		   			 	  WHERE CUST_ID = #{cust_id} 
+		   			 	  AND QK_CD = #{qk_cd}
+		   			  	  ORDER BY ABS(QNA_CD) DESC  
+		    			)  
+		    	)  
+		     WHERE rNum >= #{start} AND rNum <= #{end}
+		]]>
+	</select>
+	
+	<!-- qna 등록 -->
+	<insert id="qnaAdd" parameterType="ptms.mvc.tpj.CustVO.QnAVO">
+		INSERT INTO QNA_TB(QNA_CD, CUST_ID, QK_CD, QNA_TITLE, QNA_CONTENT, QNA_DT) VALUES(QNA_CD_SEQ.nextval, #{CUST_ID}, #{QK_CD}, #{QNA_TITLE}, #{QNA_CONTENT}, sysdate)
+	</insert>
+	
+	<!-- qna 수정 -->
+	<update id="updateQna" parameterType="ptms.mvc.tpj.CustVO.QnAVO">
+		UPDATE QNA_TB SET QNA_TITLE = #{QNA_TITLE}, QNA_CONTENT = #{QNA_CONTENT} WHERE QNA_CD = #{QNA_CD}
+	</update>
+	
+	<!-- qna 삭제 -->
+	<delete id="deleteQna">
+		DELETE FROM QNA_TB WHERE QNA_CD = #{QNA_CD}
+	</delete>
+	
+	<!-- faq 목록 갯수 -->
+	<select id="faqCount" resultType="int" >
+		SELECT COUNT(*) as cnt FROM FAQ_TB WHERE FK_CD = #{fk_cd}
+	</select>
+	
+	<!-- faq 목록 조회 -->
+	<select id="faqSearch" resultType="ptms.mvc.tpj.CustVO.FAQVO">
+		<![CDATA[
+			SELECT *  
+				 FROM 
+				   (SELECT FAQ_CD, FK_CD, MG_ID, FAQ_TITLE, FAQ_CONTENT, FAQ_KIND, rowNum rNum   
+				    FROM ( SELECT q.*, k.FAQ_KIND  
+				   		   FROM FAQ_TB q, FAQKIND_TB k 
+				   		   WHERE q.FK_CD = k.FK_CD 
+				   		   AND k.FK_CD = #{fk_cd}
+				   		   ORDER BY ABS(q.FAQ_CD) DESC  
+				   		  )  
+				   )  
+				   WHERE rNum >= #{start} AND rNum <= #{end}
+		]]>
+	</select>
+	
+	<!-- 결제이력 리스트 수 -->
+	<select id="getpayList" parameterType="String" resultType="int">
+		SELECT COUNT(*)
+		FROM BUYLIST_TB
+		WHERE CUST_ID = #{CUST_ID}
+	</select>
+	
+	<!-- 결제이력 리스트(BUYLIST_TB) -->
+	<select id="payList" parameterType="java.util.Map" resultType="ptms.mvc.tpj.CustVO.PayVO">
+		<![CDATA[
+	  	 SELECT *
+	  	 FROM			
+			(SELECT r.*  ,ROWNUM rNUM
+			  FROM 
+			   (SELECT b.BY_CD, b.CUST_ID, b.PAYKIND_CD, b.BY_SUM, b.BY_FEES, b.BY_DT , p.PAY_KIND
+			  	FROM BUYLIST_TB b, PAYKIND_TB p
+			  	WHERE b.PAYKIND_CD = p.PAYKIND_CD
+				AND CUST_ID = #{CUST_ID}
+				)r
+			 )	
+			 WHERE rNum >= #{start} AND rNum <= #{end}	
+			 ORDER BY BY_DT DESC
+		]]>	
+	</select>
+	
+</mapper>

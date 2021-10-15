@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="ptms.mvc.tpj.Admin_DAO.AdminDAO">  
+
+	<!-- 펫 코드 및 요금 등록 -->
+	<insert id="petCodeFee" parameterType="ptms.mvc.tpj.CustVO.PetVO">
+		INSERT ALL 
+   		INTO PET_KIND_TB VALUES (#{PK_CD}, #{PK_KIND}, #{PK_DETAIL})
+   		INTO SITTER_FEE_TB VALUES(SF_CD_SEQ.nextval ,#{PK_CD} , #{SF_FEE})
+		SELECT * FROM DUAL  
+	</insert>
+	
+	<!-- 펫 코드 수 구하기 -->
+	<select id="petCodeCount" resultType="int">
+		SELECT COUNT(*)cnt
+		FROM PET_KIND_TB
+	</select>
+	
+	<!-- 펫 코드 및 요금 목록 -->
+	<select id="getpetCodeFee" resultType="ptms.mvc.tpj.CustVO.PetVO">
+		SELECT p.PK_CD, p.PK_KIND, p.PK_DETAIL, s.SF_FEE
+		FROM PET_KIND_TB p , SITTER_FEE_TB s
+		WHERE p.PK_CD = s.PK_CD
+		ORDER BY p.PK_CD
+	</select>
+	
+	<!-- 수정 펫 코드 및 요금 목록 조회 -->
+	<select id="UpdatePetCodeFeeList" parameterType="int" resultType="ptms.mvc.tpj.CustVO.PetVO">
+		SELECT p.PK_CD, p.PK_KIND, p.PK_DETAIL, s.SF_FEE
+		FROM PET_KIND_TB p , SITTER_FEE_TB s
+		WHERE p.PK_CD = s.PK_CD
+		AND p.PK_CD =#{PK_CD}
+	</select>
+	
+	<!-- 펫 코드 수정처리 -->
+	<update id="UpdatePetCode" parameterType="ptms.mvc.tpj.CustVO.PetVO">
+		UPDATE PET_KIND_TB
+		SET PK_KIND=#{PK_KIND},PK_DETAIL=#{PK_DETAIL}
+		WHERE PK_CD =#{PK_CD}
+	</update>
+	
+	<!-- 요금표 수정처리 -->
+	<update id="UpdateServiceFee" parameterType="ptms.mvc.tpj.CustVO.PetVO">
+		UPDATE SITTER_FEE_TB
+		SET SF_FEE=#{SF_FEE}
+		WHERE PK_CD =#{PK_CD}
+	</update>
+	
+	<!-- 펫 코드 및 요금 목록 삭제처리 -->
+	<delete id="DeletePetCodeFee" parameterType="int">
+		DELETE FROM PET_KIND_TB
+		WHERE PK_CD =#{PK_CD}
+	</delete>
+	
+	
+	<!-- 관리자 등록 -->
+	<insert id="insertAdmin" parameterType="ptms.mvc.tpj.AdminVO.AdminVO">
+		INSERT INTO MANAGERS_TB
+		VALUES(#{mg_id}, #{mg_pwd}, #{mg_kind}, default)
+	</insert>
+	
+	<!-- 관리자 아이디 중복확인 -->
+	<select id="idChk" resultType="int">
+		SELECT COUNT(*) cnt FROM MANAGERS_TB WHERE MG_ID = #{mg_id}
+	</select>
+	
+	<!-- 관리자 비번 확인 -->
+	<select id = "pwdCheck" resultType="String">
+		SELECT MG_PWD FROM MANAGERS_TB WHERE MG_ID = #{mg_id}
+	</select>
+	
+	<!-- 관리자 정보 확인 -->
+	<select id="adminInfo" resultType="ptms.mvc.tpj.AdminVO.AdminVO">
+		SELECT * FROM MANAGERS_TB WHERE MG_ID = #{mg_id}
+	</select>
+	
+</mapper>
