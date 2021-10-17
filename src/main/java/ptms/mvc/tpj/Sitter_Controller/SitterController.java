@@ -2,6 +2,8 @@ package ptms.mvc.tpj.Sitter_Controller;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -23,13 +25,13 @@ import ptms.mvc.tpj.Sitter_DAO.SitterDAOImpl;
 import ptms.mvc.tpj.Sitter_Service.SitterServiceImpl;
 import ptms.mvc.tpj.util.ImageUploaderHandler;
 
-@MultipartConfig(location = "C:\\Dev88\\PTMS_TPJ\\src\\main\\webapp\\resources\\upload", fileSizeThreshold = 1024 * 1024,
+@MultipartConfig(location = "D:\\Dev88\\PTMS_TPJ\\src\\main\\webapp\\resources\\upload", fileSizeThreshold = 1024 * 1024,
 maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
 @RequestMapping("/sitter")
 @Controller
 public class SitterController {
 	
-	 private static final String IMG_UPLOAD_DIR = "C:\\\\Dev88\\\\PTMS_TPJ\\\\src\\\\main\\\\webapp\\\\resources\\\\upload";
+	 private static final String IMG_UPLOAD_DIR = "D:\\\\Dev88\\\\PTMS_TPJ\\\\src\\\\main\\\\webapp\\\\resources\\\\upload";
 		//D:\\\\Dev88\\\\workspace\\\\플젝명\\\\WebContent\\\\upload
 
 	 private ImageUploaderHandler uploader;
@@ -49,6 +51,13 @@ public class SitterController {
 		 log.info("url ==> sitter");
 	      
 	     String CUST_ID = (String)req.getSession().getAttribute("cust_id");
+	     
+	     	// WK_START  min값 설정
+			Date date = new Date();
+			// Date format
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+			// 오늘 날짜로 변환
+			String today = sdf.format(date);
 	      
 	      int selectCnt = dao.MypetCount(CUST_ID);
 		  System.out.println("마이펫 수 selectCnt : " + selectCnt);
@@ -56,6 +65,7 @@ public class SitterController {
 		  
 		  model.addAttribute("selectCnt", selectCnt);
 		  model.addAttribute("list", list);
+		  model.addAttribute("today", today);
 		  
 		  System.out.println("list : " + list.size());
 		  

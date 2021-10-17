@@ -1,11 +1,15 @@
 package ptms.mvc.tpj;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;  // 수정
 import org.slf4j.LoggerFactory;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import ptms.mvc.tpj.CustVO.CustomerVO;
+import ptms.mvc.tpj.CustVO.PetVO;
 import ptms.mvc.tpj.Customer_Main_DAO.MainDAOImpl;
 import ptms.mvc.tpj.persistence.AndroidDAO;
 import ptms.mvc.tpj.vo.Member;
@@ -183,5 +188,133 @@ public class AndroidController {
 		   return "main/android_fail";
 
    }
+   
+   //안드로이드 목록
+   @ResponseBody
+   @RequestMapping(value="pet_list", method = {RequestMethod.POST, RequestMethod.GET})
+   public JSONObject pet_list(HttpServletRequest req, Model model) {
+	    System.out.println("url ==> pet_list");
+	    
+	    List<PetVO> vo = new ArrayList<PetVO>();
+		vo = dao.getPetList("lim");
+		System.out.println("펫 정보 : "+vo);
+
+		JSONArray list = new JSONArray();
+		if(vo != null) {
+			for(PetVO p : vo) {
+				JSONObject json = new JSONObject();
+				json.put("PET_NM", p.getPET_NM());
+				json.put("PET_AGE", p.getPET_AGE());
+				json.put("PK_KIND", p.getPK_KIND());
+				json.put("PET_CON", p.getPET_CON());
+				json.put("PET_IMG", p.getPET_IMG());
+				
+				list.add(json);
+			}
+			System.out.println("json lsit :"+list.toJSONString());
+		}
+		JSONObject json2 = new JSONObject();
+		json2.put("list", list);
+		return json2;
+   }
+   
+// 안드로이드 펫 등록
+   @ResponseBody
+   @RequestMapping(value="pet_register", method = {RequestMethod.POST, RequestMethod.GET})
+   public int pet_register(HttpServletRequest req, Model model)
+   {
+	   System.out.println("url ==> pet_register");
+	   
+	   PetVO vo = new PetVO();
+	   String id = req.getParameter("id");	//고객아이디
+	   System.out.println("id: " + id);
+	   String PET_NM = req.getParameter("pet_name"); //펫이름
+	   System.out.println("PET_NM : "+ PET_NM);
+	   int PET_AGE = Integer.parseInt(req.getParameter("pet_age")); //펫나이
+	   System.out.println("PET_AGE :" + PET_AGE);
+	   int PK_CD = Integer.parseInt(req.getParameter("pet_kind")); //펫종류
+	   System.out.println("PK_CD : " + PK_CD);
+	   String PET_CON = req.getParameter("uniqueness"); //특이사항
+	   System.out.println("PET_CON : " + PET_CON);
+	   
+	   vo.setCUST_ID("lim");
+	   vo.setPET_NM(PET_NM);
+	   vo.setPET_AGE(PET_AGE);
+	   vo.setPK_CD(PK_CD);
+	   vo.setPET_CON(PET_CON);
+	   vo.setPET_IMG("/tpj/resources/upload/orange.jpg");
+	   
+	   //insert할 dao mapper
+	   int petInsertCnt = dao.insertPet(vo);
+	   
+	   return petInsertCnt;
+   }
+   
+/*   
+   @RequestMapping(value="json.do",produces="application/json;charset=utf-8")
+   public @ResponseBody JSONObject json(){
+       // json-simple 라이브러리 추가 필요(JSON 객체 생성)
+       JSONObject jsonMain = new JSONObject(); // json 객체
+       // {변수명:값, 변수명:값}
+       // {sendData:[{변수명:값},{변수명:값},...]}
+       List<PetVO> items = bookService.bookList();
+       JSONArray jArray = new JSONArray(); // json배열
+       for(int i=0; i<items.size(); i++){
+           BookDTO dto = items.get(i);
+           JSONObject row = new JSONObject();
+           // json객체.put("변수명",값)
+           row.put("book_code", dto.getBook_code());
+           row.put("book_name", dto.getBook_name());
+           row.put("press", dto.getPress());
+           row.put("price", dto.getPrice());
+           row.put("amount", dto.getAmount());
+           // 배열에 추가
+           // json배열.add(인덱스,json객체)
+           jArray.add(i,row);
+       }
+       // json객체에 배열을 넣음
+       jsonMain.put("sendData", jArray);
+       return jsonMain;
+   }
+  */ 
+   
+   /*// 안드로이드 수정할 펫 정보 
+   @RequestMapping(value = "modifyPetInfoAndroid")
+   @ResponseBody
+   public Map<String, Object>  modifyPetInfoAndroid(HttpServletRequest req, Model model) {
+      int PET_CD = Integer.parseInt(req.getParameter("pet_cd"));
+      Map<String, Object> map = new HashMap<String, Object>();
+      PetVO vo = dao.PetDetail(PET_CD);
+      map.put("petName", vo.getPET_NM());
+      map.put("petAge", vo.getPET_AGE());
+      map.put("petUnique", vo.getPET_CON());
+      map.put("petImg", vo.getPET_IMG());
+      
+      return map;
+   } */
+   
+   // 안드로이드 펫정보 수정처리
+   @RequestMapping(value = "ModifyPet")
+   @ResponseBody
+   public Map<String, Object> ModifyPet(HttpServletRequest req) {
+	  Map<String, Object> map = new HashMap<String, Object>();
+	  String PET_CD = req.getParameter("petCd");
+	  String PET_NM = req.getParameter("petName");
+      String PET_AGE = req.getParameter("petAge");
+      String PET_CON = req.getParameter("petUnique");
+      String PET_IMG = req.getParameter("petImg");
+      
+      map.put("PET_CD", PET_CD);
+      map.put("PET_NM", PET_NM);
+      map.put("PET_AGE", PET_AGE);
+      map.put("PET_CON", PET_CON);
+      map.put("PET_IMG", PET_IMG);
+      
+      int updateCnt = dao.andupdatePet(map);
+      
+      map.put("updateCnt", updateCnt);
+      
+      return map;
+   } 
 }
 

@@ -37,13 +37,13 @@ import ptms.mvc.tpj.TrainerService.TrainerServiceImpl;
 import ptms.mvc.tpj.emailHandler.emailSender;
 import ptms.mvc.tpj.util.ImageUploaderHandler;
 
-@MultipartConfig(location = "C:\\Dev88\\PTMS_TPJ\\src\\main\\webapp\\resources\\upload", fileSizeThreshold = 1024 * 1024,
+@MultipartConfig(location = "D:\\Dev88\\PTMS_TPJ\\src\\main\\webapp\\resources\\upload", fileSizeThreshold = 1024 * 1024,
 maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
 @RequestMapping("/cust")
 @Controller
 public class MainController {
 	private static final long serialVersionUID = 1L;
-    private static final String IMG_UPLOAD_DIR = "C:\\\\Dev88\\\\workspace\\\\PTMS_TPJ\\\\src\\\\main\\\\webapp\\\\resources\\\\upload";
+    private static final String IMG_UPLOAD_DIR = "C:\\\\Dev88\\\\PTMS_TPJ\\\\src\\\\main\\\\webapp\\\\resources\\\\upload";
     											//D:\\\\Dev88\\\\workspace\\\\플젝명\\\\WebContent\\\\upload
 	
     private ImageUploaderHandler uploader;
@@ -65,13 +65,13 @@ public class MainController {
 	@Autowired
 	MainDAOImpl dao;
 	 
-	// 메인페이지 이동
+	// 메인페이
 	@RequestMapping({"", "main", "Newsletter"})
 	public String main(HttpServletRequest req, Model model) {
 		
-		service.Newsletter(req, model); 
+		service.Newsletter(req, model); //상단 
 		
-		//service.petIssue(req, model);
+		service.petIssue(req, model);  
 		
 		return "main/index";
 	}
@@ -610,7 +610,16 @@ public class MainController {
 	   
 	   service.HospitalInfo(req, model);
 	   
-	   return "news/Convenience_Info";
+	   return "news/Hospital";
+   }
+   
+   // 푸터 하단 병원정보 - 21.10.15 원철
+   @RequestMapping("shopInfo")
+   public String shopInfo(HttpServletRequest req, Model model) {
+	   
+	   service.shopInfo(req, model);
+	   
+	   return "news/Shop";
    }
    
    // 로그아웃 요청

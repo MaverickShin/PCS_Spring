@@ -8,7 +8,7 @@
 	<title>편의기능</title>
 <script src="https://kit.fontawesome.com/5d238a51aa.js" crossorigin="anonymous"></script>
 <script>
-const apiKey = "5919a06844059487fee67afcf1a1af26"; // api key 선언
+const apiKey = "36bc56138ca449539cc708f20e85fa65"; // api key 선언
 
 // api 호출
 var apiURI = "http://api.openweathermap.org/data/2.5/weather?q=Seoul"+"&appid="+apiKey+"&lang=kr";
@@ -153,10 +153,12 @@ $.ajax({
 		width: 600px;
 		margin:0;
 		background-color: #37474f;
+		min-height: 400px;
 	}
 	
 	.ntcs img{
 		width : 330px !important;
+		height: 230px !important;
 		border: 3px solid white;
 		border-radius: 30px;
 		-moz-border-radius: 30px;
@@ -251,7 +253,7 @@ $.ajax({
 </div>
 	<%@ include file = "../../main/footer.jsp" %>
 	
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d3f081829ec2250ecac36edcd2f27812&libraries=services,clusterer,drawing"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3026b91d046d070ecd8421c332f8903&libraries=services,clusterer,drawing"></script>
 <script>
 // 마커를 담을 배열입니다
 var markers = [];

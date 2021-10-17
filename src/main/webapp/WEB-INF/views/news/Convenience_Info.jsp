@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="../setting.jsp"%> 
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +10,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
 	function convenience_view() {
-		var imgNum5=Math.round(Math.random()*3); 
+		var imgNum5=Math.round(Math.random()*5); 
 		var td5 = $(".tdsss");
 		td5.hide();
 		td5[imgNum5].style.display = 'block';
@@ -18,7 +19,7 @@
 
 </script>
 <style>
-.bigs {
+ .bigs {
 	width: 250px;
 	height: 250px;
 	align: center;
@@ -56,23 +57,22 @@
 .ntcs a span {
 	display:block;
 	position:absolute;
-	top: 300px;
+	top: 260px;
 	width: 100%;
-}
+	height: 40px;
+} 
 </style>
 </head>
 
 <body onload = "convenience_view();">
-	<table class= "bigs">
-		<tbody>
-			<c:forEach var = "i" items="${list}">
-				<tr> 
-					<td class= "tdsss">
-						${i}	
-					</td>
-				</tr>
-			</c:forEach>
-		</tbody>
+	<table style = "margin-left:auto; margin-right:auto;">
+		<c:forEach var = "i" items="${list}">
+			<tr> 
+				<td class= "tdsss">
+					${i}	
+				</td>
+			</tr>
+		</c:forEach>
 	</table>
 </body>
 </html>
